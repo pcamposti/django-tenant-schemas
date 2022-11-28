@@ -28,5 +28,5 @@ class ParallelExecutor(MigrationExecutor):
             )
             p = multiprocessing.Pool(processes=processes)
             p.imap(run_migrations_p, tenants, 2)
-            pool.close() 
-            pool.join()
+            p.close() 
+            p.join()
