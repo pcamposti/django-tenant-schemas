@@ -26,5 +26,10 @@ class ParallelExecutor(MigrationExecutor):
                 self.codename,
                 allow_atomic=False
             )
-            p = multiprocessing.Pool(processes=processes)
-            p.imap(run_migrations_p, tenants, chunks)
+            jobs = []
+            for tenant in tenants:
+                p = multiprocessing.Process(target=run_migrations_p, args=(tenant,))
+                jobs.append(p)
+                p.start()
+            for job in jobs:
+                job.join()
