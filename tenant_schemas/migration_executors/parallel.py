@@ -1,4 +1,5 @@
 import os
+import subprocess
 import functools
 import multiprocessing
 
@@ -18,13 +19,19 @@ class ParallelExecutor(MigrationExecutor):
             command = ''
             for tenant in tenants:
                 os.system(f"echo {tenant}")
-                command += 'python manage.py migrate_schemas tenant --database={db} --schema={tenant} & \n'
-                command += 'python manage.py migrate_schemas commons_pg --database={db} --schema={tenant} & \n'
+                #command += f'python manage.py migrate_schemas tenant --database={db} --schema={tenant} & \n'
+                #command += f'python manage.py migrate_schemas commons_pg --database={db} --schema={tenant} & \n'
                 count += 1
+                migrate_tenant = subprocess.Popen(['python manage.py migrate_schemas tenant --database={db} --schema={tenant} &'])
+                migrate_commons = subprocess.Popen(['python manage.py migrate_schemas commons_pg --database={db} --schema={tenant} &'])
                 os.system(f"echo python manage.py migrate_schemas tenant --database={db} --schema={tenant} ")
                 os.system(f"echo python manage.py migrate_schemas commons_pg --database={db} --schema={tenant}")
                 if count == 5:
-                    command += 'wait \n'
+                    migrate_tenant.wait()
+                    migrate_commons.wait()
                     count = 0
             command += 'wait \n'
-            os.system(command)
+            migrate_commons.wait()
+            migrate_tenant.wait()
+            os.system(f"echo finish Migrations")
+            #os.system(command)
