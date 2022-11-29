@@ -11,14 +11,9 @@ from tenant_schemas.migration_executors.base import MigrationExecutor, run_migra
 class ParallelExecutor(MigrationExecutor):
     codename = 'parallel'
 
-    def work(self, db, tenant, app):
-        command = ['python', 'manage.py', 'migrate_schemas', f'{app}', f'--database={db}', f'--schema={tenant}']
-        migrate_tenant = subprocess.Popen(command)
-
     def run_tenant_migrations(self, tenants):
         db = self.options.get('db', None) or self.options.get('database', None)
-        chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 20)
-        print(self)
+        chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 10)
         print(self.args)
         os.system(f"echo {db}")
         if tenants:
@@ -27,16 +22,14 @@ class ParallelExecutor(MigrationExecutor):
             for tenant in tenants:
                 os.system(f"echo {tenant}")
                 count += 1
-                process = multiprocessing.Process(target=self.work, args=(db, tenant, 'tenant'))
-                process2 = multiprocessing.Process(target=self.work, args=(db, tenant, 'commons_pg'))
-                process.start()
-                process2.start()
+                migrate_tenant = subprocess.Popen(['python', 'manage.py', 'migrate_schemas', 'tenant', f'--database={db}', f'--schema={tenant}'])
+                migrate_commons = subprocess.Popen(['python', 'manage.py', 'migrate_schemas', 'commons_pg', f'--database={db}', f'--schema={tenant}'])
                 os.system(f"echo python manage.py migrate_schemas tenant --database={db} --schema={tenant} ")
                 os.system(f"echo python manage.py migrate_schemas commons_pg --database={db} --schema={tenant}")
                 if count == chunks:
-                    process.join()
-                    process2.join()
+                    migrate_tenant.wait()
+                    migrate_commons.wait()
                     count = 0
-            process.join()
-            process2.join()
+            migrate_commons.wait()
+            migrate_tenant.wait()
             os.system(f"echo finish Migrations")
