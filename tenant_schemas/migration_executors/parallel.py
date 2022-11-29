@@ -2,6 +2,7 @@ import os
 import subprocess
 import functools
 import multiprocessing
+from pprint import pprint
 
 from django.conf import settings
 
@@ -14,8 +15,8 @@ class ParallelExecutor(MigrationExecutor):
     def run_tenant_migrations(self, tenants):
         db = self.options.get('db', None) or self.options.get('database', None)
         chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 10)
-        print(self)
-        print(self.args)
+        pprint(vars(self))
+        pprint(vars(self.args))
         os.system(f"echo {db}")
         if tenants:
             count = 0
