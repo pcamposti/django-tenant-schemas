@@ -23,7 +23,7 @@ class ParallelExecutor(MigrationExecutor):
             for tenant in tenants:
                 os.system(f"echo {tenant}")
                 count += 1
-                migrate_parallel = subprocess.Popen(['python', 'manage.py', 'migrate_schemas', f'app', f'--database={db}', f'--schema={tenant}'])
+                migrate_parallel = subprocess.Popen(['python', 'manage.py', 'migrate_schemas', f'{app}', f'--database={db}', f'--schema={tenant}'])
                 print(f"python manage.py migrate_schemas {app} --database={db} --schema={tenant} ")
                 if count == chunks:
                     migrate_parallel.wait()
