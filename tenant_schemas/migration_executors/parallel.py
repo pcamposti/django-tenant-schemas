@@ -15,15 +15,17 @@ class ParallelExecutor(MigrationExecutor):
         os.system(f"echo {db}")
         if tenants:
             count = 0
+            command = ''
             for tenant in tenants:
                 os.system(f"echo {tenant}")
+                command += 'python manage.py migrate_schemas tenant --database={db} --schema={tenant} & ;'
+                command += 'python manage.py migrate_schemas commons_pg --database={db} --schema={tenant} & ;'
                 count += 1
-                os.system(f"echo python manage.py migrate_schemas tenant --database={db} --schema={tenant}")
-                os.system(f'python manage.py migrate_schemas tenant --database={db} --schema={tenant} &')
+                os.system(f"echo python manage.py migrate_schemas tenant --database={db} --schema={tenant} ")
                 os.system(f"echo python manage.py migrate_schemas commons_pg --database={db} --schema={tenant}")
                 os.system(f'python manage.py migrate_schemas commons_pg --database={db} --schema={tenant} &')
                 if count == 5:
+                    command += 'wait ;'
                     count = 0
-                    os.system(f"echo wait {str(count)}")
-                    os.system('wait')
-            os.system('wait')
+            command += 'wait ;'
+            os.system(command)
