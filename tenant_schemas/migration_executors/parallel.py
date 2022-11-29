@@ -11,9 +11,15 @@ from tenant_schemas.migration_executors.base import MigrationExecutor, run_migra
 class ParallelExecutor(MigrationExecutor):
     codename = 'parallel'
 
+    def work(db, tenant, app):
+        command = ['python', 'manage.py', 'migrate_schemas', f'{app}', f'--database={db}', f'--schema={tenant}']
+        migrate_tenant = subprocess.Popen(command)
+
     def run_tenant_migrations(self, tenants):
+        pool = mp.Pool(NUMBER_OF_TASKS)
         db = self.options.get('db', None) or self.options.get('database', None)
         chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 20)
+        print(self)
         print(self.args)
         os.system(f"echo {db}")
         if tenants:
@@ -22,14 +28,16 @@ class ParallelExecutor(MigrationExecutor):
             for tenant in tenants:
                 os.system(f"echo {tenant}")
                 count += 1
-                migrate_tenant = subprocess.Popen(['python', 'manage.py', 'migrate_schemas', 'tenant', f'--database={db}', f'--schema={tenant}'])
-                migrate_commons = subprocess.Popen(['python', 'manage.py', 'migrate_schemas', 'commons_pg', f'--database={db}', f'--schema={tenant}'])
+                process = multiprocessing.Process(target=work, args=(db, tenant, 'tenant'))
+                process2 = multiprocessing.Process(target=work, args=(db, tenant, 'commons_pg'))
+                process.start()
+                process2.start()
                 os.system(f"echo python manage.py migrate_schemas tenant --database={db} --schema={tenant} ")
                 os.system(f"echo python manage.py migrate_schemas commons_pg --database={db} --schema={tenant}")
                 if count == chunks:
-                    migrate_tenant.wait()
-                    migrate_commons.wait()
+                    process.join()
+                    process2.join()
                     count = 0
-            migrate_commons.wait()
-            migrate_tenant.wait()
+            process.join()
+            process2.join()
             os.system(f"echo finish Migrations")
