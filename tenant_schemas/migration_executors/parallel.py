@@ -27,8 +27,8 @@ class ParallelExecutor(MigrationExecutor):
             for tenant in tenants:
                 os.system(f"echo {tenant}")
                 count += 1
-                process = multiprocessing.Process(target=work, args=(db, tenant, 'tenant'))
-                process2 = multiprocessing.Process(target=work, args=(db, tenant, 'commons_pg'))
+                process = multiprocessing.Process(target=self.work, args=(db, tenant, 'tenant'))
+                process2 = multiprocessing.Process(target=self.work, args=(db, tenant, 'commons_pg'))
                 process.start()
                 process2.start()
                 os.system(f"echo python manage.py migrate_schemas tenant --database={db} --schema={tenant} ")
