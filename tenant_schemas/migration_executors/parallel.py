@@ -16,7 +16,7 @@ class ParallelExecutor(MigrationExecutor):
         db = self.options.get('db', None) or self.options.get('database', None)
         chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 10)
         app = self.options.get('app_label', None)
-        os.system(f"echo {db}")
+        print(f"app {app}: {db}")
         if tenants:
             count = 0
             command = ''
