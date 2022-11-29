@@ -16,8 +16,6 @@ class ParallelExecutor(MigrationExecutor):
 
             from django.db import connection
 
-            connection.close()
-            connection.connection = None
 
             run_migrations_p = functools.partial(
                 run_migrations,
@@ -27,4 +25,4 @@ class ParallelExecutor(MigrationExecutor):
                 allow_atomic=False
             )
             p = multiprocessing.Pool(processes=processes)
-            p.map(run_migrations_p, tenants, chunksize=10)
+            p.map(run_migrations_p, tenants, chunksize=20)
