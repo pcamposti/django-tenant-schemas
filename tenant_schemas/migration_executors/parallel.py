@@ -14,6 +14,11 @@ class ParallelExecutor(MigrationExecutor):
             processes = getattr(settings, 'TENANT_PARALLEL_MIGRATION_MAX_PROCESSES', 2)
             chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 2)
 
+            from django.db import connection
+
+            connection.close()
+            connection.connection = None
+
             run_migrations_p = functools.partial(
                 run_migrations,
                 self.args,
@@ -21,12 +26,5 @@ class ParallelExecutor(MigrationExecutor):
                 self.codename,
                 allow_atomic=False
             )
-            jobs = []
-            count = 0
-            for tenant in tenants:
-                p = multiprocessing.Process(target=run_migrations_p, args=(tenant,))
-                jobs.append(p)
-                p.start()
-                if count == chunks:
-                    p.join()
-                    count=0
+            p = multiprocessing.Pool(processes=processes)
+            p.map(run_migrations_p, tenants, chunks)
