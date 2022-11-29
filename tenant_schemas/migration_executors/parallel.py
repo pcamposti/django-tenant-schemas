@@ -1,3 +1,4 @@
+import os
 import functools
 import multiprocessing
 
@@ -10,26 +11,16 @@ class ParallelExecutor(MigrationExecutor):
     codename = 'parallel'
 
     def run_tenant_migrations(self, tenants):
+        db = self.options.get('db', None) or self.options.get('database', None)
+        os.system('pwd')
+        os.system('ls')
+        os.system(f"echo {db}")
         if tenants:
-            processes = getattr(settings, 'TENANT_PARALLEL_MIGRATION_MAX_PROCESSES', 2)
-            chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 2)
-
-            from django.db import connection
-
-            connection.close()
-            connection.connection = None
-
-            run_migrations_p = functools.partial(
-                run_migrations,
-                self.args,
-                self.options,
-                self.codename,
-                allow_atomic=False
-            )
-            jobs = []
+            count = 0
             for tenant in tenants:
-                p = multiprocessing.Process(target=run_migrations_p, args=(tenant,))
-                jobs.append(p)
-                p.start()
-            for job in jobs:
-                job.join()
+                count += 1
+                os.system(f'python manage.py migrate_schemas tenant --database={db} --schema={tenant} &')
+                os.system(f'python manage.py migrate_schemas commons_pg --database={db} --schema={tenant} &')
+                if count == 20:
+                    count = 0
+                    os.system('wait')
