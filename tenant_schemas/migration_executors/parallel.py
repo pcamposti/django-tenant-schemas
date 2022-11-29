@@ -11,7 +11,7 @@ from tenant_schemas.migration_executors.base import MigrationExecutor, run_migra
 class ParallelExecutor(MigrationExecutor):
     codename = 'parallel'
 
-    def work(db, tenant, app):
+    def work(self, db, tenant, app):
         command = ['python', 'manage.py', 'migrate_schemas', f'{app}', f'--database={db}', f'--schema={tenant}']
         migrate_tenant = subprocess.Popen(command)
 
