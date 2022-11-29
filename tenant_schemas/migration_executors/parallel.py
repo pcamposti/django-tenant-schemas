@@ -14,6 +14,7 @@ class ParallelExecutor(MigrationExecutor):
     def run_tenant_migrations(self, tenants):
         db = self.options.get('db', None) or self.options.get('database', None)
         chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 10)
+        print(self)
         print(self.args)
         os.system(f"echo {db}")
         if tenants:
