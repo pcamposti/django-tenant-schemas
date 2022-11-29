@@ -21,6 +21,7 @@ class ParallelExecutor(MigrationExecutor):
                 count += 1
                 os.system(f'python manage.py migrate_schemas tenant --database={db} --schema={tenant} &')
                 os.system(f'python manage.py migrate_schemas commons_pg --database={db} --schema={tenant} &')
-                if count == 20:
+                if count == 5:
                     count = 0
                     os.system('wait')
+            os.system('wait')
