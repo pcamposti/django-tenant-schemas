@@ -15,8 +15,7 @@ class ParallelExecutor(MigrationExecutor):
     def run_tenant_migrations(self, tenants):
         db = self.options.get('db', None) or self.options.get('database', None)
         chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 10)
-        pprint(vars(self))
-        pprint(vars(self.args))
+        app = self.options.get('app_label', None)
         os.system(f"echo {db}")
         if tenants:
             count = 0
@@ -24,14 +23,10 @@ class ParallelExecutor(MigrationExecutor):
             for tenant in tenants:
                 os.system(f"echo {tenant}")
                 count += 1
-                migrate_tenant = subprocess.Popen(['python', 'manage.py', 'migrate_schemas', 'tenant', f'--database={db}', f'--schema={tenant}'])
-                migrate_commons = subprocess.Popen(['python', 'manage.py', 'migrate_schemas', 'commons_pg', f'--database={db}', f'--schema={tenant}'])
-                os.system(f"echo python manage.py migrate_schemas tenant --database={db} --schema={tenant} ")
-                os.system(f"echo python manage.py migrate_schemas commons_pg --database={db} --schema={tenant}")
+                migrate_parallel = subprocess.Popen(['python', 'manage.py', 'migrate_schemas', f'app', f'--database={db}', f'--schema={tenant}'])
+                print(f"python manage.py migrate_schemas {app} --database={db} --schema={tenant} ")
                 if count == chunks:
-                    migrate_tenant.wait()
-                    migrate_commons.wait()
+                    migrate_parallel.wait()
                     count = 0
-            migrate_commons.wait()
-            migrate_tenant.wait()
+            migrate_parallel.wait()
             os.system(f"echo finish Migrations")
