@@ -27,4 +27,4 @@ class ParallelExecutor(MigrationExecutor):
                 allow_atomic=False
             )
             p = multiprocessing.Pool(processes=processes)
-            p.map(run_migrations_p, tenants, chunks)
+            p.map(run_migrations_p, tenants, chunksize=10)
