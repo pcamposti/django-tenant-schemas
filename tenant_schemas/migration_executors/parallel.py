@@ -16,7 +16,6 @@ class ParallelExecutor(MigrationExecutor):
         migrate_tenant = subprocess.Popen(command)
 
     def run_tenant_migrations(self, tenants):
-        pool = mp.Pool(NUMBER_OF_TASKS)
         db = self.options.get('db', None) or self.options.get('database', None)
         chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 20)
         print(self)
