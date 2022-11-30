@@ -19,22 +19,23 @@ class SchemaExecutor(MigrationExecutor):
             count = 0
             command = ''
             schemas = ''
-            for tenant in tenants:
+            n=4
+            tenant_chunks = [tenants[i * n:(i + 1) * n] for i in range((len(tenants) + n - 1) // n )]
+            for tenant in tenant_chunks:
                 os.system(f"echo {tenant}")
                 count += 1
                 print(f"python manage.py migrate_schemas {app} --database={db} --schema={tenant} --executor")
-                schemas += f'{tenant},'
-                if count == 4:
-                    migrate_parallel = subprocess.Popen([
-                        'python',
-                        'manage.py',
-                        'migrate_schemas',
-                        f'{app}',
-                        f'--database={db}',
-                        f'--schema={schemas[:-1]}',
-                        '--executor=parallel',
-                    ])
-                    schemas = ''
+                schemas = ",".join(tenant)
+                migrate_parallel = subprocess.Popen([
+                    'python',
+                    'manage.py',
+                    'migrate_schemas',
+                    f'{app}',
+                    f'--database={db}',
+                    f'--schema={schemas}',
+                    '--executor=parallel',
+                ])
+                schemas = ''
                 if count == chunks:
                     migrate_parallel.wait()
                     count = 0
