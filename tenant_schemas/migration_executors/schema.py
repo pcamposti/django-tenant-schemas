@@ -18,6 +18,7 @@ class SchemaExecutor(MigrationExecutor):
         if tenants:
             count = 0
             command = ''
+            schemas = ''
             for tenant in tenants:
                 os.system(f"echo {tenant}")
                 count += 1
