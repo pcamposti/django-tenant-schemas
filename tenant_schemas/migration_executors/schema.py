@@ -31,8 +31,8 @@ class SchemaExecutor(MigrationExecutor):
                         'migrate_schemas',
                         f'{app}',
                         f'--database={db}',
-                        f'--schema={schemas}',fix 
-                        f'--executor=parallel'
+                        f'--schema={schemas}',
+                        '--executor=parallel',
                     ])
                     schemas = ''
                 if count == chunks:
