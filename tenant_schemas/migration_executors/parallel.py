@@ -11,7 +11,6 @@ class ParallelExecutor(MigrationExecutor):
 
     def run_tenant_migrations(self, tenants):
         if tenants:
-            tenants = tenants.split(',') if ',' in tenants else tenants
             print(tenants)
             processes = getattr(settings, 'TENANT_PARALLEL_MIGRATION_MAX_PROCESSES', 4)
             chunks = getattr(settings, 'TENANT_PARALLEL_MIGRATION_CHUNKS', 2)
