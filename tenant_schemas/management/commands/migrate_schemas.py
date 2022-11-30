@@ -39,7 +39,7 @@ class Command(SyncCommon):
         if self.sync_public:
             executor.run_migrations(tenants=[self.schema_name])
         if self.sync_tenant:
-            if self.schema_name and self.schema_name != self.PUBLIC_SCHEMA_NAME:
+            if self.schema_name and self.schema_name != self.PUBLIC_SCHEMA_NAME and ',' not in self.schema_name:
                 if not schema_exists(self.schema_name, db=db):
                     raise MigrationSchemaMissing('Schema "{}" does not exist'.format(
                         self.schema_name))
