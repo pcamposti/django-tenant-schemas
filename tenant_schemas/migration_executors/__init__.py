@@ -1,6 +1,7 @@
 import os
 
 from tenant_schemas.migration_executors.base import MigrationExecutor
+from tenant_schemas.migration_executors.schema import SchmeaExecutor
 from tenant_schemas.migration_executors.parallel import ParallelExecutor
 from tenant_schemas.migration_executors.standard import StandardExecutor
 
