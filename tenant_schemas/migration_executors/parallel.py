@@ -25,5 +25,3 @@ class ParallelExecutor(MigrationExecutor):
             )
             p = multiprocessing.Pool(processes=processes)
             p.map(run_migrations_p, tenants)
-            connection.close()
-            connection.connection = None
