@@ -24,7 +24,7 @@ class ParallelExecutor(MigrationExecutor):
                 self.args,
                 self.options,
                 self.codename,
-                allow_atomic=False
+                allow_atomic=True
             )
             p = multiprocessing.Pool(processes=processes)
             p.map(run_migrations_p, tenants)
