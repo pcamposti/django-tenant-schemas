@@ -1,6 +1,6 @@
 import os
+import subprocess
 import functools
-import multiprocessing
 
 from django.conf import settings
 
