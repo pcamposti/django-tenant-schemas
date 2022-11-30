@@ -31,7 +31,7 @@ class SchemaExecutor(MigrationExecutor):
                         'migrate_schemas',
                         f'{app}',
                         f'--database={db}',
-                        f'--schema={schemas}',
+                        f'--schema={schemas[:-1]}',
                         '--executor=parallel',
                     ])
                     schemas = ''
